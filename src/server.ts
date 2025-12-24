@@ -1,10 +1,8 @@
-import express from "express"
+import app from "./app";
+import config from "./config";
 
+const port = config.port;
 
-const app = express()
-app.use(express.json())
-
-
-app.listen(5000,() => {
-    console.log("Server is running...")
-})
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
