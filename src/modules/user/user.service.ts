@@ -1,5 +1,6 @@
 import { pool } from "../../config/db";
 
+// create user
 interface IUser {
   name: string;
   email: string;
@@ -7,8 +8,6 @@ interface IUser {
   phone: string;
   role: any;
 }
-
-// create user
 const createUser = async (payload: IUser) => {
   const { name, email, password, phone, role } = payload;
 
@@ -28,6 +27,7 @@ const allUsers = async () => {
   return result.rows;
 };
 
+// update user
 interface IUserUpdate {
   id: number;
   name?: string;
@@ -35,7 +35,6 @@ interface IUserUpdate {
   password?: string;
   phone?: string;
 }
-// update user
 const updateUser = async (payload: IUserUpdate) => {
   const { name, email, password, phone, id } = payload;
   const result = await pool.query(
@@ -45,9 +44,15 @@ const updateUser = async (payload: IUserUpdate) => {
   return result;
 };
 
+// delete user
+const deleteUser = async (id: number) => {
+  const result = await pool.query(`DELETE FROM users WHERE id = $1`, [id]);
+  return result;
+};
 
 export const userServices = {
   createUser,
   allUsers,
   updateUser,
+  deleteUser,
 };
