@@ -5,4 +5,6 @@ const router = express.Router();
 
 router.post("/signup", authControllers.createUser);
 
+router.post("/signin", authControllers.signinUser);
+
 export const authRoutes = router;

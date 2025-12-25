@@ -3,7 +3,7 @@ import { pool } from "../../config/db";
 
 // fetch all users
 const allUsers = async () => {
-  const result = await pool.query(`SELECT * FROM users`);
+  const result = await pool.query(`SELECT id,name,email,phone,role,created_at FROM users`);
   return result.rows;
 };
 

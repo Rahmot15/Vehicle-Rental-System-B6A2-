@@ -12,6 +12,19 @@ const createUser = async (req: Request, res: Response) => {
   }
 };
 
+// signIn user
+const signinUser = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  try {
+    const result = await authService.signinUser(email, password);
+    return sendResponse(res, 200, true, "signin successful", result);
+  } catch (err: any) {
+    return sendResponse(res, 500, false, err.message);
+  }
+};
+
 export const authControllers = {
   createUser,
+  signinUser,
 };
