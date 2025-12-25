@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import initDB from "./config/db";
 import { userRoutes } from "./modules/user/user.routes";
+import { authRoutes } from "./modules/auth/auth.route";
 
 
 const app = express();
@@ -17,6 +18,9 @@ app.get("/", (req: Request, res: Response) => {
 
 // user CRUD
 app.use("/api/v1", userRoutes)
+
+// auth
+app.use("/api/v1/auth", authRoutes)
 
 
 app.use((req, res) => {
