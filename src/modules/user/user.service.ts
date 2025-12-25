@@ -8,21 +8,49 @@ const allUsers = async () => {
 };
 
 // update user
-interface IUserUpdate {
+interface IUserUpdatePayload {
   id: number;
   name?: string;
-  email?: string;
-  password?: string;
   phone?: string;
+  role?: "admin" | "customer";
 }
-const updateUser = async (payload: IUserUpdate) => {
-  const { name, email, password, phone, id } = payload;
+
+interface ILoggedInUser {
+  userId: number;
+  role: "admin" | "customer";
+}
+
+const updateUser = async (
+  payload: IUserUpdatePayload,
+  loggedInUser: ILoggedInUser
+) => {
+  const { id, name, phone, role } = payload;
+
+  if (loggedInUser.role === "customer" && loggedInUser.userId !== id) {
+    throw new Error("You are not authorized to update this user");
+  }
+
+  if (loggedInUser.role === "customer" && role) {
+    throw new Error("Customer cannot update role");
+  }
+
   const result = await pool.query(
-    `UPDATE users SET name=$1, email=$2, password=$3, phone=$4 WHERE id=$5 RETURNING *`,
-    [name, email, password, phone, id]
+    `
+    UPDATE users
+    SET
+      name = COALESCE($1, name),
+      phone = COALESCE($2, phone),
+      role = COALESCE($3, role)
+    WHERE id = $4
+    RETURNING id, name, email, phone, role
+    `,
+    [name, phone, role, id]
   );
-  return result;
+
+  return result.rows[0];
 };
+
+
 
 // delete user
 const deleteUser = async (id: number) => {

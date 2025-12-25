@@ -14,29 +14,42 @@ const allUsers = async (req: Request, res: Response) => {
 };
 
 // update user
+interface ILoggedInUser {
+  userId: number;
+  role: "admin" | "customer";
+  email: string;
+}
+
 const updateUser = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    const result = await userServices.updateUser({
-      ...req.body,
-      id: Number(userId),
-    });
-    if (result.rows.length === 0) {
-      return sendResponse(res, 404, false, "user not found");
-    } else {
-      return sendResponse(
-        res,
-        200,
-        true,
-        "update user successfully",
-        result.rows[0]
-      );
+    const result = await userServices.updateUser(
+      {
+        id: Number(userId),
+        name: req.body.name,
+        phone: req.body.phone,
+        role: req.body.role,
+      },
+      req.user as ILoggedInUser
+    );
+
+    if (!result) {
+      return sendResponse(res, 404, false, "User not found");
     }
+
+    return sendResponse(
+      res,
+      200,
+      true,
+      "User updated successfully",
+      result
+    );
   } catch (error: any) {
-    return sendResponse(res, 500, false, error.message);
+    return sendResponse(res, 403, false, error.message);
   }
 };
+
 
 // delete user
 const deleteUser = async (req: Request, res: Response) => {
