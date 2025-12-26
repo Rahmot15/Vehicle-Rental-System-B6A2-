@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import initDB from "./config/db";
 import { userRoutes } from "./modules/user/user.routes";
 import { authRoutes } from "./modules/auth/auth.route";
+import { vehicleRoutes } from "./modules/vehicle/vehicle.routes";
 
 
 const app = express();
@@ -21,6 +22,10 @@ app.use("/api/v1", userRoutes)
 
 // auth
 app.use("/api/v1/auth", authRoutes)
+
+// vehicles
+app.use("/api/v1/vehicles", vehicleRoutes)
+
 
 
 app.use((req, res) => {
