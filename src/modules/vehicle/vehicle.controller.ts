@@ -25,20 +25,52 @@ const allVehicles = async (req: Request, res: Response) => {
 // get single vehicle
 const singleVehicle = async (req: Request, res: Response) => {
   try {
-    const result = await vehicleService.singleVehicle(req.params.vehicleId as string);
+    const result = await vehicleService.singleVehicle(
+      req.params.vehicleId as string
+    );
 
     if (result.rows.length === 0) {
       return sendResponse(res, 404, false, "vehicle not found");
     } else {
-       return sendResponse(res, 200, true, "vehicles fetch successfully", result.rows[0]);
+      return sendResponse(
+        res,
+        200,
+        true,
+        "vehicles fetch successfully",
+        result.rows[0]
+      );
     }
   } catch (err: any) {
     return sendResponse(res, 500, false, err.message);
   }
 };
 
+// Update vehicle
+const updateVehicle = async (req: Request, res: Response) => {
+  try {
+    const { vehicleId } = req.params;
+
+    const result = await vehicleService.updateVehicle({
+      vehicleId: Number(vehicleId),
+      vehicle_name: req.body.vehicle_name,
+      type: req.body.type,
+      daily_rent_price: req.body.daily_rent_price,
+      availability_status: req.body.availability_status,
+    });
+
+    if (!result) {
+      return sendResponse(res, 404, false, "vehicle not found");
+    }
+
+    return sendResponse(res, 200, true, "vehicle updated successfully", result.rows[0]);
+  } catch (error: any) {
+    return sendResponse(res, 403, false, error.message);
+  }
+};
+
 export const vehicleController = {
   createVehicle,
   allVehicles,
-  singleVehicle
+  singleVehicle,
+  updateVehicle,
 };
