@@ -78,9 +78,57 @@ const updateVehicle = async (payload: IUVehicle) => {
   return result;
 };
 
+// delete vehicle
+const deleteVehicle = async (vehicleId: number) => {
+  const vehicle = await pool.query(
+    `
+    SELECT availability_status
+    FROM vehicles
+    WHERE id = $1
+    `,
+    [vehicleId]
+  );
+
+  if (vehicle.rows.length === 0) {
+    return null;
+  }
+
+  if (vehicle.rows[0].availability_status === "booked") {
+    throw new Error("Booked vehicle cannot be deleted");
+  }
+
+  // active booking check (extra safety)
+  const bookingCheck = await pool.query(
+    `
+    SELECT id
+    FROM bookings
+    WHERE vehicle_id = $1
+      AND status = 'active'
+    `,
+    [vehicleId]
+  );
+
+  if (bookingCheck.rows.length > 0) {
+    throw new Error("Vehicle has active bookings");
+  }
+
+  // delete vehicle
+  const result = await pool.query(
+    `
+    DELETE FROM vehicles
+    WHERE id = $1
+    RETURNING *
+    `,
+    [vehicleId]
+  );
+
+  return result.rows[0];
+};
+
 export const vehicleService = {
   createVehicle,
   allVehicles,
   singleVehicle,
   updateVehicle,
+  deleteVehicle,
 };

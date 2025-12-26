@@ -62,9 +62,29 @@ const updateVehicle = async (req: Request, res: Response) => {
       return sendResponse(res, 404, false, "vehicle not found");
     }
 
-    return sendResponse(res, 200, true, "vehicle updated successfully", result.rows[0]);
+    return sendResponse(
+      res,
+      200,
+      true,
+      "vehicle updated successfully",
+      result.rows[0]
+    );
   } catch (error: any) {
     return sendResponse(res, 403, false, error.message);
+  }
+};
+
+// delete vehicle
+const deleteVehicle = async (req: Request, res: Response) => {
+  try {
+    const { vehicleId } = req.params;
+
+    const result = await vehicleService.deleteVehicle(Number(vehicleId));
+
+
+    return sendResponse(res, 200, true, "Vehicle deleted successfully", result);
+  } catch (error: any) {
+    return sendResponse(res, 400, false, error.message);
   }
 };
 
@@ -73,4 +93,5 @@ export const vehicleController = {
   allVehicles,
   singleVehicle,
   updateVehicle,
+  deleteVehicle,
 };
