@@ -12,7 +12,6 @@ const createVehicle = async (req: Request, res: Response) => {
   }
 };
 
-
 // fetch all vehicles
 const allVehicles = async (req: Request, res: Response) => {
   try {
@@ -22,7 +21,24 @@ const allVehicles = async (req: Request, res: Response) => {
     return sendResponse(res, 500, false, error.message);
   }
 };
+
+// get single vehicle
+const singleVehicle = async (req: Request, res: Response) => {
+  try {
+    const result = await vehicleService.singleVehicle(req.params.vehicleId as string);
+
+    if (result.rows.length === 0) {
+      return sendResponse(res, 404, false, "vehicle not found");
+    } else {
+       return sendResponse(res, 200, true, "vehicles fetch successfully", result.rows[0]);
+    }
+  } catch (err: any) {
+    return sendResponse(res, 500, false, err.message);
+  }
+};
+
 export const vehicleController = {
   createVehicle,
-  allVehicles
+  allVehicles,
+  singleVehicle
 };
