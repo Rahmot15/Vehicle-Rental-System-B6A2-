@@ -7,7 +7,7 @@ import { userServices } from "./user.service";
 const allUsers = async (req: Request, res: Response) => {
   try {
     const result = await userServices.allUsers();
-    return sendResponse(res, 200, true, "user fetch successfully", result);
+    return sendResponse(res, 200, true, "Users retrieved successfully", result);
   } catch (error: any) {
     return sendResponse(res, 500, false, error.message);
   }
@@ -64,8 +64,7 @@ const deleteUser = async (req: Request, res: Response) => {
         res,
         200,
         true,
-        "user delete successfully",
-        result.rows
+        "User deleted successfully"
       );
     }
   } catch (error: any) {

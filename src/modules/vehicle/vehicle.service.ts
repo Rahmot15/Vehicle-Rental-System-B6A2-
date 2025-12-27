@@ -49,6 +49,7 @@ const singleVehicle = async (id: string) => {
 interface IUVehicle {
   vehicle_name: string;
   type: string;
+  registration_number: string;
   daily_rent_price: string;
   availability_status: string;
   vehicleId: number;
@@ -57,6 +58,7 @@ const updateVehicle = async (payload: IUVehicle) => {
   const {
     vehicle_name,
     type,
+    registration_number,
     daily_rent_price,
     availability_status,
     vehicleId,
@@ -67,12 +69,13 @@ const updateVehicle = async (payload: IUVehicle) => {
   SET
     vehicle_name = COALESCE($1, vehicle_name),
     type = COALESCE($2, type),
-    daily_rent_price = COALESCE($3, daily_rent_price),
-    availability_status = COALESCE($4, availability_status)
-  WHERE id = $5
+    registration_number = COALESCE($3, registration_number),
+    daily_rent_price = COALESCE($4, daily_rent_price),
+    availability_status = COALESCE($5, availability_status)
+  WHERE id = $6
   RETURNING *
   `,
-    [vehicle_name, type, daily_rent_price, availability_status, vehicleId]
+    [vehicle_name, type, registration_number, daily_rent_price, availability_status, vehicleId]
   );
 
   return result;
@@ -80,9 +83,10 @@ const updateVehicle = async (payload: IUVehicle) => {
 
 // delete vehicle
 const deleteVehicle = async (vehicleId: number) => {
+  // Check if vehicle exists
   const vehicle = await pool.query(
     `
-    SELECT availability_status
+    SELECT id
     FROM vehicles
     WHERE id = $1
     `,
@@ -90,14 +94,10 @@ const deleteVehicle = async (vehicleId: number) => {
   );
 
   if (vehicle.rows.length === 0) {
-    return null;
+    throw new Error("Vehicle not found");
   }
 
-  if (vehicle.rows[0].availability_status === "booked") {
-    throw new Error("Booked vehicle cannot be deleted");
-  }
-
-  // active booking check (extra safety)
+  // Check for active bookings
   const bookingCheck = await pool.query(
     `
     SELECT id
@@ -109,10 +109,10 @@ const deleteVehicle = async (vehicleId: number) => {
   );
 
   if (bookingCheck.rows.length > 0) {
-    throw new Error("Vehicle has active bookings");
+    throw new Error("Cannot delete vehicle with active bookings");
   }
 
-  // delete vehicle
+  // Delete vehicle
   const result = await pool.query(
     `
     DELETE FROM vehicles

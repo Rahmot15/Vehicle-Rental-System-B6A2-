@@ -6,9 +6,19 @@ import config from "../config";
 const auth = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.headers.authorization;
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized access - Bearer token required"
+        });
+      }
+      const token = authHeader.split(" ")[1]; // Extract token after 'Bearer '
       if (!token) {
-        return res.status(500).json({ message: "You are not allowed!!" });
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized access"
+        });
       }
       const decoded = jwt.verify(
         token,
@@ -17,10 +27,11 @@ const auth = (...roles: string[]) => {
       console.log({ decoded });
       req.user = decoded;
 
-      //["admin"]
+      // ["admin"]
       if (roles.length && !roles.includes(decoded.role as string)) {
-        return res.status(500).json({
-          error: "unauthorized!!!",
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden access",
         });
       }
 
